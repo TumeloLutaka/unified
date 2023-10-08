@@ -38,26 +38,24 @@ function signIn(email, password){
 }
 
 // Used to add a shopping list to the firestore databse shopping list collection
-async function addShoppingList(name, ulShoppingList) {
+async function addShoppingList(listName) {
   await addDoc(shoppingListsCollection, {
-      name: name,
+      name: listName,
       users: [
         localStorage.getItem('unified-uid')
       ], 
       items: []
   })
-  getShoppingLists(ulShoppingList)
 }
 
 // Used to add a shopping list to the firestore databse shopping list collection
-async function addShoppingListItem(item) {
+async function addShoppingListItem(itemName, itemNeed, itemHave, itemCost) {
   // Reference the specific document to add list item to 
   const docRef = doc(db, 'shopping-lists', localStorage.getItem('unified-current-list'))
 
   // Setting up what data to update
-  const updateData = {items: arrayUnion(item)}
+  const updateData = {items: arrayUnion({name:itemName,need:itemNeed, have:itemHave, cost:itemCost })}
 
-  console.log(item)
   // Use updateDoc to update the document with the array operation
   updateDoc(docRef, updateData)
   .then(() => {
@@ -85,6 +83,7 @@ async function getMyShoppingLists(){
 
 }
 
+// Getting all shopping list items for a particular shopping list
 async function getShoppingListitems(docId) {
   // Reference the specific document to retrieve
   const docRef = doc(db, "shopping-lists", docId);
