@@ -1,31 +1,71 @@
-// Import the functions you need from the SDKs you need
-import { getFirestore, doc, getDoc, setDoc} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+// Import functions from firebase file
+import { addShoppingList, addShoppingListItem, getMyShoppingLists, getShoppingListitems } from "./firebase.js"
 
-import app from "./index.js";
-const db = getFirestore(app);
+getLists()
 
-async function getAccountDocument() {
-    const docRef = doc(db, "accounts", "1"); // replace '1' with your document id
-    const docSnap = await getDoc(docRef);
-  
-    if (docSnap.exists()) {
-      console.log("Document data:", docSnap.data());
-    } else {
-      console.log("No such document!");
-    }
-  }
-  
-  getAccountDocument();
+// Adding event listener to add-new button
+document.getElementById('add-new').addEventListener('click', () => {
+  document.getElementById('new-form-container').style.display = 'block'
+})
 
-  // Adding event listener to add-new button
-  document.getElementById('add-new').addEventListener('click', () => {
-    addList()
+document.getElementById('new-list-cancel-btn').addEventListener('click', () => {
+  document.getElementById('new-form-container').style.display = 'none'
+})
+
+// Getting reference and adding event listener to new list form
+const addListForm = document.getElementById('new-list-form')
+addListForm.addEventListener('submit', (event) => {
+    event.preventDefault()
+    // Get list name value
+    const listName = document.getElementById('list-name').value.trim()
+    // Call firebase function to add new list
+    addShoppingList(listName, ulShoppingList)
+    document.getElementById('new-form-container').style.display = 'none'
+})
+
+// Getting reference and adding event listener to shopping list items list form
+const addItemForm = document.getElementById('add-item-form')
+addItemForm.addEventListener('submit', (event) => {
+    event.preventDefault()
+    // Get list name value
+    const itemName = document.getElementById('add-item').value.trim()
+    // Call firebase function to add new item to specific shopping list
+    addShoppingListItem(itemName)
+})
+
+// Retrieves shopping lists from firestore database and creates buttons for them in side bar.
+async function getLists() {
+  // Get reference to UL for shopping 
+  const ulShoppingList = document.getElementById('shopping-lists')
+  // Calling firebase funciton to get shopping lists
+  const shoppingLists = await getMyShoppingLists(ulShoppingList)
+
+  // Clear list
+  ulShoppingList.innerHTML = ""
+  shoppingLists.forEach((doc) => {
+    // Create a button element and set its innerHTML and click functionality
+    const button = document.createElement('button');
+    button.innerHTML = `${doc.data().name}`;
+    button.addEventListener('click', () => {
+      displayShoppingListItems(doc.id)
+    });
+
+    const item = document.createElement('li')
+    item.appendChild(button)
+    ulShoppingList.appendChild(item)
+  });
+
+}
+
+// Called when user clicks on a shopping list
+async function displayShoppingListItems(docId) {
+  const items = await getShoppingListitems(docId)
+
+  // Display items in list element
+  const itemsList = document.getElementById('item-list')
+  itemsList.innerHTML = ""
+  items.forEach(item => {
+    itemsList.append(document.createElement('h1').innerText = item)
   })
 
-  async function addList() {
-    await setDoc(doc(db, "shopping-lsit"), {
-        name: "Los Angeles",
-        state: "CA",
-        country: "USA"
-    })
-  }
+}

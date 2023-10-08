@@ -6,10 +6,6 @@
     
     <!-- styling -->
     <link rel="stylesheet" href="./css/main.css">
-
-    <!-- Scripts -->
-    <script type="module" src="javascript/index.js" defer></script>
-    <script type="module" src="javascript/home.js" defer></script>
     
     <title>Unified - Home</title>
 </head>
@@ -17,15 +13,37 @@
     <div class="content">
         <div class="side-bar">
             <h1>Unified</h1>
-            <ul>
-                Accounts
-                <li>Account 1</li>
-                <li>Account 2</li>
-                <li>Account 3</li>
-                <li>Account 4</li>
-            </ul>
+            Accounts
+            <ul id="shopping-lists"></ul>
+            <button id="add-new">Add New</button>
         </div>
-        <button id="add-new">Add New</button>
+
+        <div class="main-content">
+            <!-- Adding item form -->
+            <form id="add-item-form">
+                <label for="add-item">Item: </label>
+                <input type="text" name="add-item" id="add-item">
+                <button type="submit">Add</button>
+            </form>
+            Product Name, Quantity, Amount, total
+
+            <!-- List of items -->
+            <div class="item-list-container">
+                <ul id="item-list"></ul>
+            </div>
+        </div>
+        
+        <div id="new-form-container" style="display: none;">
+            <form id="new-list-form">
+                <label for="list-name">Name:</label><br>
+                <input required type="text" id="list-name" name="list-name" placeholder="Name" ><br>
+                <button id="new-list-cancel-btn">cancel</button>
+                <button type="submit">Add</button>
+            </form>
+        </div>
     </div>
+        
+    <!-- Scripts -->
+    <script type="module" src="javascript/home.js" defer></script>
 </body>
 </html>

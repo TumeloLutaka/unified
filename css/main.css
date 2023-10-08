@@ -5,7 +5,11 @@
 }
 
 .content {
+    display: flex;
     width: 100vw;
     height: 100vh;
+}
+
+.side-bar {
     background-color: rgba(102, 51, 153, 0.7);
 }
