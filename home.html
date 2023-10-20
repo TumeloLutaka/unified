@@ -13,19 +13,57 @@
     <div class="content">
         <div class="side-bar">
             <h1>Unified</h1>
-            Accounts
-            <ul id="shopping-lists"></ul>
-            <button id="add-new">Add New</button>
+            <p class="shopping-list-header">Shopping Lists</p>
+            <ul id="shopping-lists">
+            </ul>
+            <button id="btn-create-list-form" class="btn btn-primary-form">New List</button>
         </div>
 
         <div class="list-view">
-            <!-- List Name Header -->
-            <h1 id="list-name-header" style="margin-top: 10px;">Loading...</h1>
-            <!-- New Item Button -->
-            <button id="show-add-item-form">+ Add New</button>
+            <h1 class="dashboard-header">
+                Dashboard
+            </h1>
+
+            <div class="shopping-list-view" id="shopping-list-view" style="display: flex;">
+                <div class="list-header">
+                    <!-- List Name Header -->
+                    <h1 id="list-name-header" style="margin-top: 10px;">Loading...</h1>
+                    <!-- New Item Button -->
+                    <button id="btn-add-item-form" class="btn btn-primary-light">+ Add Item</button>
+                </div>
+                
+                <!-- List of items -->
+                <ul class="list-view-categories" id="list-view-categories">
+                    <!-- List of items to be inserted with JavaScript -->
+                </ul>
+
+                <!-- Total div -->
+                <div class="list-view-total-container">
+                    <p>Total: <Span id="total-cost">K500</Span></p> 
+                </div>
+            </div>
+
             
             
-            <!-- Adding item form -->
+        </div>
+        
+        <div id="form-container" class="form-container" style="display: none;">
+            <!-- Form header -->
+            <div id="form-header" class="form-header">
+                <h1>Form</h1>
+            </div>
+
+            <!-- Form for creating a new shopping list -->
+            <form id="new-list-form" style="display: none;">
+                <label for="list-name">Name:</label><br>
+                <input required type="text" id="list-name" name="list-name" placeholder="Name" ><br>
+                <div class="btn-container-left">
+                    <button type="submit" class="btn btn-primary-form">Add</button>
+                    <button type="button" class="btn btn-danger-form btn-cancel-form">Cancel</button>
+                </div>
+            </form>
+            
+            <!-- Form for adding an item to a shopping list -->
             <form id="add-item-form" style="display: none;">
                 <label for="add-item-name">Name: </label>
                 <input type="text" name="add-item-name" id="add-item-name">
@@ -35,41 +73,31 @@
                 <input type="text" name="add-item-have" id="add-item-have">
                 <label for="add-item-cost">Price: </label>
                 <input type="text" name="add-item-cost" id="add-item-cost">
-                <button type="submit">Add</button>
+                <label for="add-item-category">Category: </label>
+                <input type="text" name="add-item-category" id="add-item-category">
+                <div class="btn-container-left">
+                    <button type="submit" class="btn btn-primary-form">Add</button>
+                    <button type="button" class="btn btn-danger-form btn-cancel-form">Cancel</button>
+                </div>
             </form>
-            
-            <!-- List of items -->
-            <div class="list-view-items">
-                <!-- Create a basic table -->
-                <table>
-                     <thead>
-                         <tr>
-                             <th>Name</th>
-                             <th>Need</th>
-                             <th>Have</th>
-                             <th>Cost</th>
-                             <th>Total</th>
-                             <th style="width: 50px;">Edit</th>
-                             <th style="width: 50px;">Delete</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-body">
-                        </tbody>
-                    </table>
-            </div>
-            
-            <!-- Total div -->
-            <div class="list-view-total-container">
-                <p>Total: <Span id="total-cost">K500</Span></p> 
-            </div>
-        </div>
-        
-        <div id="new-form-container" style="display: none;">
-            <form id="new-list-form">
-                <label for="list-name">Name:</label><br>
-                <input required type="text" id="list-name" name="list-name" placeholder="Name" ><br>
-                <button id="new-list-cancel-btn">cancel</button>
-                <button type="submit">Add</button>
+
+            <!-- Form for editing an already existing item -->
+            <form id="edit-item-form"style="display: none;">
+                <input type="hidden" id="edit-item-id">
+                <label for="edit-item-name">Name: </label>
+                <input type="text" name="edit-item-name" id="edit-item-name">
+                <label for="edit-item-need">Need: </label>
+                <input type="text" name="edit-item-need" id="edit-item-need">
+                <label for="edit-item-have">Have: </label>
+                <input type="text" name="edit-item-have" id="edit-item-have">
+                <label for="edit-item-cost">Price: </label>
+                <input type="text" name="edit-item-cost" id="edit-item-cost">
+                <label for="edit-item-category">Category: </label>
+                <input type="text" name="edit-item-category" id="edit-item-category">
+                <div class="btn-container-left">
+                    <button type="submit" class="btn btn-primary-form">Edit</button>
+                    <button type="button" class="btn btn-danger-form btn-cancel-form">Cancel</button>
+                </div>
             </form>
         </div>
     </div>

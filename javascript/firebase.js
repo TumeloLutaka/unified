@@ -40,21 +40,37 @@ function signIn(email, password){
 // Used to add a shopping list to the firestore databse shopping list collection
 async function addShoppingList(listName) {
   await addDoc(shoppingListsCollection, {
-      name: listName,
-      users: [
-        localStorage.getItem('unified-uid')
-      ], 
-      items: []
+    categories:[
+      "General"
+    ],
+    items: [],
+    name: listName,
+    users: [
+      localStorage.getItem('unified-uid')
+    ], 
   })
 }
 
 // Used to add a shopping list to the firestore databse shopping list collection
-async function addShoppingListItem(itemName, itemNeed, itemHave, itemCost) {
+async function addShoppingListItem(itemName, itemNeed, itemHave, itemCost, itemCategory) {
   // Reference the specific document to add list item to 
   const docRef = doc(db, 'shopping-lists', localStorage.getItem('unified-current-list'))
+  const updateData = {}
+
+  //Check if category exists, if so add new category to list
+  const docSnap = await getDoc(docRef);
+  let addCategory = true
+  docSnap.data().categories.forEach( category => {
+    if(category === itemCategory) addCategory = false
+  })
+  // Update categories
+  if(addCategory){
+    // Use updateDoc to update the document with the array operation
+    updateData.categories = arrayUnion(itemCategory)
+  }
 
   // Setting up what data to update
-  const updateData = {items: arrayUnion({name:itemName,need:itemNeed, have:itemHave, cost:itemCost })}
+  updateData.items = arrayUnion({name:itemName,need:itemNeed, have:itemHave, cost:itemCost, category:itemCategory })
 
   // Use updateDoc to update the document with the array operation
   updateDoc(docRef, updateData)
@@ -88,19 +104,42 @@ async function getShoppingListitems(docId) {
   // Reference the specific document to retrieve
   const docRef = doc(db, "shopping-lists", docId);
   const docSnap = await getDoc(docRef);
+
+  // Create variable that holds all organized items and categories
+  let categorisedItems = []
   
+  // If document was successfully retrieved organize all items into their categories.
   if (docSnap.exists()) {
-    console.log("Document data:", docSnap.data());
-    return docSnap.data().items
+    // Loop through each category
+    docSnap.data().categories.forEach( category => {
+      let categoryItems = {
+        name:category,
+        items: []
+      }
+      
+      // Loop through all items and check if their category field matches the current category if so, add to the category item
+      docSnap.data().items.forEach( item => {
+        if(item.category === category) categoryItems.items.push(item)
+      })
+
+      categorisedItems.push(categoryItems)
+    })
+    return categorisedItems
   } else {
     // docSnap.data() will be undefined in this case
     console.log("No such document!");
   }
 }
 
+async function editItem() {
+
+  await updateDoc(docRef, newData)
+}
+
 export {
   addShoppingList,
   addShoppingListItem,
+  editItem,
   getMyShoppingLists,
   getShoppingListitems,
   signIn

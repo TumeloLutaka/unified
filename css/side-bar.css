@@ -1,0 +1,64 @@
+.side-bar {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 20%;
+    padding: 10px 0;
+    border-right: 1px solid var(--col-primary);
+}
+
+.side-bar h1 {
+    font-size: 1.65rem;
+    padding: 20px 0;
+}
+
+.side-bar ul {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-grow: 1;
+    width: 100%;
+    padding: 0 10px;
+    overflow: scroll;
+    overflow-x: hidden;
+}
+
+.side-bar ul::-webkit-scrollbar {
+    width: 2px;
+    background-color: transparent;
+}
+
+.side-bar ul::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background-color: var(--col-primary);
+}
+
+.side-bar ul li {
+    width: 90%;
+    margin: 5px 0;
+}
+
+.side-bar .shopping-list {
+    font-size: 1rem;
+    width: 100%;
+    padding: 10px 26px;
+    border: none;
+    border-radius: 5px;
+    background-color: transparent;
+    color: var(--col-primary);
+    cursor: pointer;
+}
+
+.side-bar .shopping-list:hover {
+    background-color: var(--col-primary);
+    color: white;
+}
+
+.side-bar .shopping-list-header {
+    text-align: center;
+    width: 90%;
+    padding: 10px 0;
+    border-top: 1px solid var(--col-primary);
+    border-bottom: 1px solid var(--col-primary);
+    /* background-color: red; */
+}

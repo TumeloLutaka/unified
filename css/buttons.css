@@ -1,0 +1,45 @@
+.btn {
+    font-size: 1rem;
+    width: fit-content;
+    padding: 10px 26px;
+    border: none;
+    border-radius: 5px;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.btn:hover{
+    opacity: 70%;
+}
+
+.btn:active {
+    opacity: 80%;
+}
+
+.btn-active {
+    background-color: var(--col-primary);
+    color: white;
+}
+
+.btn-container-left{
+    display: flex;
+    justify-content: flex-end;
+    gap: 5px;
+    margin-top: 20px;
+    width: 100%;
+}
+
+.btn-primary-form {
+    background-color: var(--col-primary);
+    color: white;
+}
+
+.btn-primary-light {
+    background-color: transparent;
+    color: var(--col-primary);
+}
+
+.btn-danger-form {
+    background-color: var(--col-danger);
+    color: white;
+}
