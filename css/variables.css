@@ -1,9 +1,11 @@
 :root {
     --col-primary: #462255;
+    --col-primary-light: #955cad;
     --col-danger: crimson;
     --col-secondary: #76ec76;
     --col-lightgrey: #ebebee;
     --col-secondarygrey: #858585;
+    --col-overlay-primary: #4622553a;
 }
 
 * {    

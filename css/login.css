@@ -1,0 +1,89 @@
+#sign-up-btn {
+    font-weight: 600;
+    color: var(--col-secondary);
+    cursor: pointer;
+}
+.login-background {
+    background: linear-gradient(45deg, white 90%, var(--col-primary) 10%);
+}
+
+.login-container {
+    display: flex;
+    width: fit-content;
+    height: 400px;
+    border-radius: 5px;
+    background-color: white;
+    box-shadow: 0px 5px 50px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+}
+
+.login-container div {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px;
+}
+
+.login-container-left {
+    background-color: var(--col-primary-light);
+    /* background: linear-gradient(90deg, white,  var(--col-primary-light)); */
+}
+
+.login-container-left p {
+    font-size: 14px;
+    margin: 20px 0;
+    color: white;
+}
+
+.login-container-left form h2 {
+    font-weight: 400;
+    margin: 20px 0;
+    color: white;
+}
+
+.login-container-left form input {
+    width: 250px;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #e4e4e4;
+    color: #3d3d3d;
+}
+
+.login-container-left form input:focus {
+    outline: none;
+}
+
+.login-container-left form label {
+    margin-bottom: 5px;
+}
+
+.login-container-right {
+    position: relative;
+    /* background-image: url(../images/login-background.jpg);
+    background-size: cover;
+    background-position: center; */
+    overflow: hidden;
+}
+
+.login-container-right h1, p{
+    color: var(--col-primary);
+}
+
+.login-container-right::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: hsla(0, 0%, 100%, 0.212);
+    pointer-events: none;
+}
+
+.special-text {
+    background: linear-gradient(90deg, var(--col-secondary), var(--col-primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}

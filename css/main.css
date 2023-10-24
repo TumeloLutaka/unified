@@ -3,6 +3,7 @@
 
 @import url(variables.css);
 @import url(buttons.css);
+@import url(login.css);
 @import url(side-bar.css);
 @import url(list-view.css);
 @import url(form-container.css);
@@ -13,7 +14,6 @@ body {
     justify-content: center;
     width: 100vw;
     height: 100vh;
-    background-color: rgb(146, 131, 161);
 }
 
 .content {

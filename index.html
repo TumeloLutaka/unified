@@ -4,18 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Unified - Login</title>
+    <link rel="stylesheet" href="./css/main.css">
 </head>
-<body>
-    <h1>Unified</h1>
-
-    <form id="login-form">
-        <h2>Login Form</h1>
+<body class="login-background">
+    <div class="login-container">
+        <div class="login-container-left">
+            <form id="login-form">
+                <h2>Login</h2>
+                <input required type="email" id="email" placeholder="Email address" value="test@gmail.com"><br>
+                <input required type="password" id="password" placeholder="Password" value="testing"><br>
+                <button type="submit" id="login-button" class="btn btn-primary-form">Login</button>
+            </form>
+            <p>Don't have any account <span id="sign-up-btn">Sign Up</span></p>
+        </div>
+        <div class="login-container-right">
+            <h1>Welcome to Unified</h1>
+            <p>Log in to continue</p>
+        </div>
+    </div>
             
-        <input required type="email" id="email" placeholder="Email address" value="test@gmail.com"><br>
-        <input required type="password" id="password" placeholder="Password" value="testing"><br>
-        <button type="submit" id="login-button">Login</button>
-    </form>
-    
     <script type="module" src="javascript/login.js"></script>
 </body>
 </html>
