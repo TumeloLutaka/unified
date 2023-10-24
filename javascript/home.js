@@ -1,7 +1,13 @@
 // Import functions from firebase file
 import { 
   addShoppingList, 
-  addShoppingListItem, deleteShoppingListItem, editShoppingListItem, getMyShoppingLists, getShoppingListitems 
+  addShoppingListItem, 
+  deleteShoppingList,
+  deleteShoppingListCategory, 
+  deleteShoppingListItem, 
+  editShoppingListItem, 
+  getMyShoppingLists, 
+  getShoppingListitems 
 } from "./firebase.js"
 
 // Get reference to UL for shopping 
@@ -9,6 +15,7 @@ const ulShoppingList = document.getElementById('shopping-lists')
 const formContainer = document.getElementById('form-container')
 const btnCreateListForm = document.getElementById('btn-create-list-form')
 const btnAddItemForm = document.getElementById('btn-add-item-form')
+const btnDeleteList = document.getElementById('list-name-delete-btn')
 
 getLists()
 
@@ -22,6 +29,14 @@ btnAddItemForm.addEventListener('click', () => {
   getForm('add-item-form')
 })
 
+// Adding event listener to show-add-item-form button
+btnDeleteList.addEventListener('click', () => {
+  if(confirm('Delete Shopping List?')){
+    deleteList(btnDeleteList.getAttribute('data-listId'))
+  }
+})
+
+
 // Function used to display selected form when form container is displayed
 function getForm(formId) {
   // Change display of form container to block so it appears
@@ -32,7 +47,6 @@ function getForm(formId) {
     child.style.display = 'none'
     
     if(child.id === formId){
-      console.log('Found')
       // change display type to flex
       child.style.display = 'flex'
     }
@@ -40,7 +54,6 @@ function getForm(formId) {
 
   // Get all cancel buttons and add event listeners to them
   const btnCancelForms = document.querySelectorAll('.btn-cancel-form')
-  // console.log(btnCancelForms)
   btnCancelForms.forEach( btn => {
     btn.addEventListener('click', () => {
       // Close form container when any of the button are pressed.
@@ -48,7 +61,6 @@ function getForm(formId) {
     })
   })
 }
-
 
 // Getting reference and adding event listener to new list form
 const addListForm = document.getElementById('new-list-form')
@@ -109,9 +121,25 @@ async function addItem(listId, categoryId, itemName, itemNeed, itemHave, itemCos
   displayShoppingListItems(listId)
 }
 
+// Calls firebase function to delete category from shopping list
+async function deleteCategory(listId, categoryId) {
+  await deleteShoppingListCategory(listId, categoryId)
+  displayShoppingListItems(listId)
+}
+
+// Calls firebase function to delete an item from a category
 async function deleteItem(listId, categoryId, itemName) {
   await deleteShoppingListItem(listId, categoryId, itemName)
   displayShoppingListItems(listId)
+}
+
+// Calls firebase function to delete a shopping list
+async function deleteList(listId) {
+  await deleteShoppingList(listId)
+
+  // When list is deleted reload list of shopping lists
+  document.getElementById('shopping-list-view').style.display = "none"
+  getLists()
 }
 
 // Calls firebase function to edit an item already in the list.
@@ -148,6 +176,11 @@ async function getLists() {
 
       // Changing name of displayed list
       document.getElementById('list-name-header').innerText = doc.data().name
+      // Change delete button attribute value
+      document.getElementById('list-name-delete-btn').setAttribute("data-listId", doc.id);
+
+
+      // Display list items
       displayShoppingListItems(doc.id)
     });
 
@@ -179,7 +212,23 @@ async function displayShoppingListItems(docId) {
     const theadElement = document.createElement('thead')
     const tbodyElement = document.createElement('tbody')
 
+    // Create button for deleting a category
+    const categoryHeaderDiv = document.createElement('div')
+    categoryHeaderDiv.classList.add('category-header')
+    const deleteCategoryButton = document.createElement('button')
+    deleteCategoryButton.innerText = 'Delete'
+    // Add delete functionality
+    deleteCategoryButton.addEventListener('click', () => {
+      if(confirm("Delete Category?")) {
+        // Delete category when confirmation happens
+        const listId = document.getElementById('edit-item-list').value 
+        deleteCategory(listId, category.id)
+      }
+    })
+    categoryHeaderDiv.appendChild(deleteCategoryButton)
+
     newCategory.innerHTML = `<h2 class="category-header">${category.id}</h2>`
+    newCategory.appendChild(categoryHeaderDiv)
     theadElement.innerHTML = `
     <tr style='font-size:12px; height: 20px; color:#858585'>
         <th style='width: 40%'>Name</th>
@@ -199,8 +248,6 @@ async function displayShoppingListItems(docId) {
     // Loop through each category field
     const data = category.data()
     Object.keys(data).forEach(key => {
-      console.log(data[key].cost);
-
       // Calculating the cost of the items. If have more items than need set 0
       const x = data[key].have > data[key].need ? 0 : parseInt(data[key].need) - parseInt(data[key].have)
       unitCost = parseInt(data[key].cost) * x

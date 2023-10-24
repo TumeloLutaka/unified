@@ -65,7 +65,6 @@ async function addShoppingListItem(listId, categoryId, itemName, itemNeed, itemH
     }
   }
 
-  console.log("working")
   await setDoc(
     doc(db, 'shopping-lists', listId, "categories", categoryId),
     data,
@@ -73,14 +72,21 @@ async function addShoppingListItem(listId, categoryId, itemName, itemNeed, itemH
   )
 }
 
-async function deleteShoppingList() {
+// calling firebase to remove a shopping list from collection
+async function deleteShoppingList(listId) {
+  // Delete subcollection from document
+  const querySnapshot = await getDocs(collection(db, 'shopping-lists', listId, 'categories'))
+  querySnapshot.forEach(category => {
+    deleteDoc(doc(db, "shopping-lists", listId, "categories", category.id))
+  })
 
+  // Delete collections  
+  await deleteDoc(doc(db, "shopping-lists", listId))
 }
 
 // calling firebase to remove a document from categories subcollection
 async function deleteShoppingListCategory(listId, categoryId) {
-
-  deleteDoc(doc(db, "shopping-lists", listId, "categories", categoryId))
+  await deleteDoc(doc(db, "shopping-lists", listId, "categories", categoryId))
 }
 
 // Calling firebase to remove a single field from a category document
@@ -138,6 +144,7 @@ async function getShoppingListitems(docId) {
 export {
   addShoppingList,
   addShoppingListItem,
+  deleteShoppingList,
   deleteShoppingListCategory,
   deleteShoppingListItem,
   editShoppingListItem,

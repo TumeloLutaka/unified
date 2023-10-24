@@ -27,7 +27,10 @@
             <div class="shopping-list-view" id="shopping-list-view" style="display: none;">
                 <div class="list-header">
                     <!-- List Name Header -->
-                    <h1 id="list-name-header" style="margin-top: 10px;">Loading...</h1>
+                    <div class="list-header-name-container">
+                        <h1 id="list-name-header">Loading...</h1>
+                        <button id="list-name-delete-btn" data-listId="">Delete</button>
+                    </div>
                     <!-- New Item Button -->
                     <button id="btn-add-item-form" class="btn btn-primary-light">+ Add Item</button>
                 </div>
@@ -83,7 +86,7 @@
             </form>
 
             <!-- Form for editing an already existing item -->
-            <form id="edit-item-form"style="display: none;">
+            <form id="edit-item-form" style="display: none;">
                 <div id="edit-item-name-header">
                     <h2 id="edit-item-name-header-category">Item Category</h2>
                     <h2 id="edit-item-name-header-name">Item Name</h2>
