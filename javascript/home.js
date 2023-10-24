@@ -1,7 +1,7 @@
 // Import functions from firebase file
 import { 
   addShoppingList, 
-  addShoppingListItem, editItem, getMyShoppingLists, getShoppingListitems 
+  addShoppingListItem, deleteShoppingListItem, editShoppingListItem, getMyShoppingLists, getShoppingListitems 
 } from "./firebase.js"
 
 // Get reference to UL for shopping 
@@ -65,38 +65,31 @@ const addItemForm = document.getElementById('add-item-form')
 addItemForm.addEventListener('submit', (event) => {
     event.preventDefault()
     // Get list values
+    const listId = document.getElementById('add-item-list').value
+    const categoryId = document.getElementById('add-item-category').value.trim()
     const itemName = document.getElementById('add-item-name').value.trim()
     const itemNeed = document.getElementById('add-item-need').value.trim()
     const itemHave = document.getElementById('add-item-have').value.trim()
     const itemCost = document.getElementById('add-item-cost').value.trim()
-    const itemCategory = document.getElementById('add-item-category').value.trim()
 
     // Calling add function
-    addItem(itemName, itemNeed, itemHave, itemCost, itemCategory)
+    addItem(listId, categoryId, itemName, itemNeed, itemHave, itemCost)
 })
 
 const editItemForm = document.getElementById('edit-item-form')
 editItemForm.addEventListener('submit', (event) => {
     event.preventDefault()
-    // Get list values
-    const itemName = document.getElementById('edit-item-name').value.trim()
+    // Get list values 
+    const listId = document.getElementById('edit-item-list').value
+    const categoryId = document.getElementById('edit-item-category').value
+    const itemName = document.getElementById('edit-item-name').value
     const itemNeed = document.getElementById('edit-item-need').value.trim()
     const itemHave = document.getElementById('edit-item-have').value.trim()
     const itemCost = document.getElementById('edit-item-cost').value.trim()
-    const itemCategory = document.getElementById('edit-item-category').value.trim()
 
     // Calling add function
-    editItem()
+    editItem(listId, categoryId, itemName, itemNeed, itemHave, itemCost)
 })
-
-// Calls firebase function to add list when form is submitted
-async function addItem(itemName, itemNeed, itemHave, itemCost, itemCategory) {
-    // Call firebase function to add new item to specific shopping list
-  await addShoppingListItem(itemName, itemNeed, itemHave, itemCost, itemCategory)
-  document.getElementById('form-container').style.display = 'none'
-  document.getElementById('add-item-form').style.display = 'none'
-  displayShoppingListItems(localStorage.getItem('unified-current-list'))
-}
 
 // Calls firebase function to add list when form is submitted
 async function addList(listName) {
@@ -105,9 +98,31 @@ async function addList(listName) {
   getLists()
 }
 
+// Calls firebase function to add list when form is submitted
+async function addItem(listId, categoryId, itemName, itemNeed, itemHave, itemCost) {
+    // Call firebase function to add new item to specific shopping list
+  await addShoppingListItem(listId, categoryId, itemName, itemNeed, itemHave, itemCost)
+
+  // After item is added hide form
+  document.getElementById('form-container').style.display = 'none'
+  document.getElementById('add-item-form').style.display = 'none'
+  displayShoppingListItems(listId)
+}
+
+async function deleteItem(listId, categoryId, itemName) {
+  await deleteShoppingListItem(listId, categoryId, itemName)
+  displayShoppingListItems(listId)
+}
+
 // Calls firebase function to edit an item already in the list.
-async function editItem() {
-  // Call firebase funcion
+async function editItem(listId, categoryId, itemName, itemNeed, itemHave, itemCost) {
+  // Call firebase funcion to edit item
+  await editShoppingListItem(listId, categoryId, itemName, itemNeed, itemHave, itemCost)
+
+  // After item is added hide form
+  document.getElementById('form-container').style.display = 'none'
+  document.getElementById('edit-item-form').style.display = 'none'
+  displayShoppingListItems(listId)
 }
 
 // Retrieves shopping lists from firestore database and creates buttons for them in side bar.
@@ -122,12 +137,16 @@ async function getLists() {
     const button = document.createElement('button');
     button.classList.add("shopping-list")
     button.innerHTML = `${doc.data().name}`;
+    // Add event listener to list button
     button.addEventListener('click', () => {
       // When button is clicked show list
       document.getElementById('shopping-list-view').style.display = "flex"
 
-      // Set the current local storage value of the list.
-      localStorage.setItem('unified-current-list', doc.id)
+      // Change add item form hidden input value
+      document.getElementById('add-item-list').value = doc.id 
+      document.getElementById('edit-item-list').value = doc.id 
+
+      // Changing name of displayed list
       document.getElementById('list-name-header').innerText = doc.data().name
       displayShoppingListItems(doc.id)
     });
@@ -142,7 +161,7 @@ async function getLists() {
 // Called when user clicks on a shopping list or adds new item to shopping list.
 async function displayShoppingListItems(docId) {
   // Getting all items belonging to this shopping list.
-  const categories = await getShoppingListitems(docId)
+  const categoriesQuerySnapshot = await getShoppingListitems(docId)
 
   // Grand total
   let GRANDTOTAL = 0
@@ -152,7 +171,7 @@ async function displayShoppingListItems(docId) {
   itemsList.innerHTML = ""
 
   //  Loop through each category and create a table on each
-  categories.forEach( category => {
+  categoriesQuerySnapshot.forEach( category => {
     // Create a list element 
     const newCategory = document.createElement('li')
     // Add the table to the innerHTML of the list element
@@ -160,39 +179,50 @@ async function displayShoppingListItems(docId) {
     const theadElement = document.createElement('thead')
     const tbodyElement = document.createElement('tbody')
 
+    newCategory.innerHTML = `<h2 class="category-header">${category.id}</h2>`
     theadElement.innerHTML = `
-    <h2>${category.name}</h2>
-    <tr style='font-size:12px; color:#858585'>
+    <tr style='font-size:12px; height: 20px; color:#858585'>
         <th style='width: 40%'>Name</th>
         <th>Need</th>
         <th>Have</th>
         <th>Cost</th>
         <th>Total</th>
-        <th style="width: 50px;">Edit</th>
-        <th style="width: 50px;">Delete</th>
+        <th style="text-align:center; width: 50px;">Edit</th>
+        <th style="text-align:center; width: 50px;">Delete</th>
     </tr>
     `
 
     // Loop through each item and add a row for the item
     let totalCategoryCost = 0
     let unitCost = 0
-    category.items.forEach( item => {
+    
+    // Loop through each category field
+    const data = category.data()
+    Object.keys(data).forEach(key => {
+      console.log(data[key].cost);
+
       // Calculating the cost of the items. If have more items than need set 0
-      const x = item.have > item.need ? 0 : parseInt(item.need) - parseInt(item.have)
-      unitCost = parseInt(item.cost) * x
+      const x = data[key].have > data[key].need ? 0 : parseInt(data[key].need) - parseInt(data[key].have)
+      unitCost = parseInt(data[key].cost) * x
       totalCategoryCost += unitCost
 
       // Create row for each item
       const itemRow = document.createElement('tr')
       itemRow.innerHTML = `
       <tr>
-        <td>${item.name}</td>
-        <td>${item.need}</td>
-        <td>${item.have}</td>
-        <td>${item.cost}</td>
+        <td>${key}</td>
+        <td>${data[key].need}</td>
+        <td>${data[key].have}</td>
+        <td>${data[key].cost}</td>
         <td>${unitCost}</td>
-        <td class="editColumn"></td>
-        <td class="deleteColumn"></td>
+        <td class="editColumn"
+          data-item-category="${category.id}" 
+          data-item-name="${key}" 
+          data-item-need="${data[key].need}" 
+          data-item-have="${data[key].have}" 
+          data-item-cost="${data[key].cost}">
+        </td>
+        <td class="deleteColumn" data-item-category="${category.id}" data-item-name="${key}"></td>
       </tr>`
 
       // Adding row HTML to body
@@ -201,7 +231,7 @@ async function displayShoppingListItems(docId) {
 
     // Add final row to table 
     tbodyElement.innerHTML += `
-      <tr>
+      <tr class="bottom-row">
         <td></td>
         <td></td>
         <td></td>
@@ -224,10 +254,23 @@ async function displayShoppingListItems(docId) {
   // Get all edit button columns
   document.querySelectorAll(".editColumn").forEach(col => {
     // Create button
-    const editButton = document.createElement('button')
-    editButton.innerHTML = "edit"
+    const editButton = document.createElement('input')
+    editButton.type = "image"
+    editButton.src = "../images/edit.png"
+    editButton.classList.add('BtnImg')
     editButton.addEventListener('click', () => {
       // Set form hidden input id to selected item
+      document.getElementById('edit-item-category').value = col.getAttribute('data-item-category')
+      document.getElementById('edit-item-name').value = col.getAttribute('data-item-name')
+
+      // Setting edit header
+      document.getElementById('edit-item-name-header-category').innerText = col.getAttribute('data-item-category')
+      document.getElementById('edit-item-name-header-name').innerText = col.getAttribute('data-item-name')
+      
+      // Initialize all input values
+      document.getElementById('edit-item-need').value = col.getAttribute('data-item-need')
+      document.getElementById('edit-item-cost').value = col.getAttribute('data-item-cost')
+      document.getElementById('edit-item-have').value = col.getAttribute('data-item-have')
 
       getForm('edit-item-form')
     })
@@ -237,10 +280,18 @@ async function displayShoppingListItems(docId) {
   // Get all delete button columns
   document.querySelectorAll(".deleteColumn").forEach(col => {
     // Create button
-    const deleteButton = document.createElement('button')
-    deleteButton.innerHTML = "delete"
+    const deleteButton = document.createElement('input')
+    deleteButton.type = "image"
+    deleteButton.src = "../images/delete.png"
+    deleteButton.classList.add('BtnImg')
     deleteButton.addEventListener('click', () => {
-      getForm('edit-item-form')
+      // When this button is clicked the item should be deleted
+      const listId = document.getElementById('edit-item-list').value 
+      const categoryId = col.getAttribute('data-item-category')
+      const itemName = col.getAttribute('data-item-name')
+
+      // Calling firebase function to perform delete functionality on database
+      deleteItem(listId, categoryId, itemName)
     })
     col.appendChild(deleteButton)
   })

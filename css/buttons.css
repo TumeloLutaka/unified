@@ -43,3 +43,16 @@
     background-color: var(--col-danger);
     color: white;
 }
+
+.BtnImg {
+    aspect-ratio: 1;
+    height: 20px;
+}
+
+.BtnImg:hover {
+    opacity: 70%;
+}
+
+.BtnImg:active{
+    opacity: 80%;
+}

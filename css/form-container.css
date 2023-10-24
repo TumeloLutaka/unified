@@ -49,3 +49,19 @@
 .form-container form label {
     margin-bottom: 5px;
 }
+
+.form-container #edit-item-name-header {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+}
+
+.form-container #edit-item-name-header-category {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--col-secondarygrey);
+}
+
+.form-container #edit-item-name-header-name {
+    font-size: 22px;
+}

@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-auth.js";
-import { getFirestore, collection, doc, getDoc, getDocs, addDoc, updateDoc, arrayUnion} from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
+import { getFirestore, collection, doc, addDoc, setDoc, getDocs, updateDoc, deleteDoc, deleteField } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-firestore.js";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -16,9 +16,6 @@ const firebaseConfig = {
   // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app)
-
-  // Initialize collection references
-  const shoppingListsCollection = collection(db, "shopping-lists")
 
   // Login functionalit
 function signIn(email, password){
@@ -39,107 +36,111 @@ function signIn(email, password){
 
 // Used to add a shopping list to the firestore databse shopping list collection
 async function addShoppingList(listName) {
-  await addDoc(shoppingListsCollection, {
-    categories:[
-      "General"
-    ],
-    items: [],
-    name: listName,
-    users: [
-      localStorage.getItem('unified-uid')
-    ], 
+  const newList = await addDoc(
+    collection(db, "shopping-lists"), 
+    {
+      name: listName,
+      users: 
+      [
+        localStorage.getItem('unified-uid')
+      ], 
   })
+  
+  // Adding the categories sub collection to the new list.
+  await setDoc(
+    doc(db, "shopping-lists", newList.id, "categories", "General"), 
+    {}
+  )
 }
 
 // Used to add a shopping list to the firestore databse shopping list collection
-async function addShoppingListItem(itemName, itemNeed, itemHave, itemCost, itemCategory) {
-  // Reference the specific document to add list item to 
-  const docRef = doc(db, 'shopping-lists', localStorage.getItem('unified-current-list'))
-  const updateData = {}
-
-  //Check if category exists, if so add new category to list
-  const docSnap = await getDoc(docRef);
-  let addCategory = true
-  docSnap.data().categories.forEach( category => {
-    if(category === itemCategory) addCategory = false
-  })
-  // Update categories
-  if(addCategory){
-    // Use updateDoc to update the document with the array operation
-    updateData.categories = arrayUnion(itemCategory)
+async function addShoppingListItem(listId, categoryId, itemName, itemNeed, itemHave, itemCost) {
+  // Reference the specific document category subcollection to add list item to 
+  const data = {
+    [itemName]: 
+    {
+      need: itemNeed,
+      have: itemHave,
+      cost: itemCost
+    }
   }
 
-  // Setting up what data to update
-  updateData.items = arrayUnion({name:itemName,need:itemNeed, have:itemHave, cost:itemCost, category:itemCategory })
+  console.log("working")
+  await setDoc(
+    doc(db, 'shopping-lists', listId, "categories", categoryId),
+    data,
+    {merge: true}
+  )
+}
 
-  // Use updateDoc to update the document with the array operation
-  updateDoc(docRef, updateData)
-  .then(() => {
-    console.log("Array updated successfully!");
-  })
-  .catch((error) => {
-    console.error("Error updating array:", error);
-  });
+async function deleteShoppingList() {
+
+}
+
+// calling firebase to remove a document from categories subcollection
+async function deleteShoppingListCategory(listId, categoryId) {
+
+  deleteDoc(doc(db, "shopping-lists", listId, "categories", categoryId))
+}
+
+// Calling firebase to remove a single field from a category document
+async function deleteShoppingListItem(listId, categoryId, itemName) {
+  // Use the updateDoc method to delete the field
+  const deleteData = {
+    [itemName]: deleteField(),
+  };
+
+  updateDoc(
+    doc(db, "shopping-lists", listId, "categories", categoryId),
+    deleteData
+  )
+}
+
+// Edit the details of an already existing item
+async function editShoppingListItem(listId, categoryId, itemName, itemNeed, itemHave, itemCost) {
+  // TODO: Only items that are different should be updated.
+  const newData = 
+  {
+    [itemName]: 
+    {
+      need: itemNeed,
+      have: itemHave,
+      cost: itemCost
+    }
+  }
+
+  await updateDoc(
+    doc(db, "shopping-lists", listId, "categories", categoryId),
+    newData
+  )
 }
 
 // Getting all shopping list from the firebase firestore
 async function getMyShoppingLists(){
   const ShoppingLists = []
 
-  const querySnapshot = await getDocs(shoppingListsCollection);
+  const querySnapshot = await getDocs(collection(db, "shopping-lists"));
   querySnapshot.forEach((doc) => {
-    // doc.data() is never undefined for query doc snapshots
-    console.log(doc.id, " => ", doc.data());
-
     // Adding to shopping list array
     ShoppingLists.push(doc)
   });
 
   return ShoppingLists
-
 }
 
 // Getting all shopping list items for a particular shopping list
 async function getShoppingListitems(docId) {
   // Reference the specific document to retrieve
-  const docRef = doc(db, "shopping-lists", docId);
-  const docSnap = await getDoc(docRef);
-
-  // Create variable that holds all organized items and categories
-  let categorisedItems = []
-  
-  // If document was successfully retrieved organize all items into their categories.
-  if (docSnap.exists()) {
-    // Loop through each category
-    docSnap.data().categories.forEach( category => {
-      let categoryItems = {
-        name:category,
-        items: []
-      }
-      
-      // Loop through all items and check if their category field matches the current category if so, add to the category item
-      docSnap.data().items.forEach( item => {
-        if(item.category === category) categoryItems.items.push(item)
-      })
-
-      categorisedItems.push(categoryItems)
-    })
-    return categorisedItems
-  } else {
-    // docSnap.data() will be undefined in this case
-    console.log("No such document!");
-  }
-}
-
-async function editItem() {
-
-  await updateDoc(docRef, newData)
+  const querySnapshot = await getDocs(collection(db, "shopping-lists", docId, "categories"))
+  return querySnapshot 
 }
 
 export {
   addShoppingList,
   addShoppingListItem,
-  editItem,
+  deleteShoppingListCategory,
+  deleteShoppingListItem,
+  editShoppingListItem,
   getMyShoppingLists,
   getShoppingListitems,
   signIn
